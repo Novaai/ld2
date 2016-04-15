@@ -1,0 +1,512 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+   <meta name="viewport" content="width=default-width; user-
+scalable=no" />
+   <meta http-equiv="Content-type" content="text/html;charset=utf-8">
+
+   <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" href="css/index.css" />
+   <title>ADMD80Chitalu</title>
+
+
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+
+
+        <script type="text/javascript" charset="utf-8" src="jquery.min.js"></script>
+
+
+ <script type="text/javascript" charset="utf-8">
+window.confirm = navigator.notification.confirm;
+
+// Creating error handler that displays error code for debugging
+function errorHandler(transaction, error) {
+   alert('Error: ' + error.message + ' code: ' + error.code);
+
+}
+
+// Function ton Inform user whether database creation was successful or not. Should the alert not appear, the database has not been created.
+function DBSuccess() {
+
+}
+
+function nullHandler(){};
+
+
+function onBodyLoad(){
+
+ if (!window.openDatabase) {
+
+   alert('Unable to create database');
+   return;
+ }
+// Database constraints are stated. in order: Short Name, Database Version, Display Name, Database Size
+ db = openDatabase('NovaDB', '1.0', 'NovaDB',31337);
+
+
+ db.transaction(function(tx){
+
+// Delete the old database everytime the app is run.
+   tx.executeSql( 'DROP TABLE IF EXISTS Event',nullHandler,nullHandler);
+
+// Creating the database
+   tx.executeSql( 'CREATE TABLE IF NOT EXISTS Event(EventId INTEGER NOT NULL PRIMARY KEY, EventName TEXT UNIQUE NOT NULL, EventLocation TEXT, EventDay TEXT NOT NULL, EventMonth TEXT NOT NULL, EventYear, EventHour TEXT, EventMinute TEXT , EventOrganiser TEXT NOT NULL, EventDescription TEXT)',[],nullHandler,errorHandler);
+ },errorHandler,DBSuccess);
+
+}
+
+
+//Listing database values in sentence form
+function showEvents() {
+
+ if (!window.openDatabase) {
+  alert('Unable to create database');
+  return;
+ }
+
+// Clearing the span used to display the data. If not cleared duplicate results will be displayed.
+ $('#displayss').html('');
+
+
+ db.transaction(function(transaction) {
+   transaction.executeSql('SELECT * FROM Event;', [],
+     function(transaction, result) {
+      if (result != null && result.rows != null) {
+        for (var i = 0; i < result.rows.length; i++) {
+          var row = result.rows.item(i);
+          $('#displayss').append('<br>' + row.EventId + '. ' + row.EventName+ ' @: ' + row.EventLocation+ ' ON: ' + row.EventDay + '/' + row.EventMonth + '/'+ row.EventYear + ' Starting At: ' + row.EventHour + ':' + row.EventMinute+' Organised By: ' + row.EventOrganiser + '.  Description: ' + row.EventDescription);
+        }
+      }
+     },errorHandler);
+ },errorHandler,nullHandler);
+
+ return;
+
+}
+
+
+function SearchEvents() {
+
+ if (!window.openDatabase) {
+  alert('Unable to create database');
+  return;
+ }
+ 
+$('#displayss2').html('');
+
+//decided time shouldnt be searched through. best left at day, month or year
+db.transaction(function(transaction) {
+ transaction.executeSql('SELECT * FROM Event WHERE EventId =? OR EventName =? OR EventLocation =? OR EventDay =? OR EventMonth =? OR EventYear =? OR EventOrganiser =?', [$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val()],
+     function(transaction, result) {
+	 var len = result.rows.length;
+	 if(len>0)
+	 {
+	 for (var i = 0; i < len; i++){
+	 $('#displayss2').append('<br>' + 'Event #' + result.rows.item(i)['EventId'] + '.  ' + result.rows.item(i)['EventName'] + ' @: ' + result.rows.item(i)['EventLocation'] + ' ON ' + result.rows.item(i)['EventDay'] + '/' + result.rows.item(i)['EventMonth']+ '/' + result.rows.item(i)['EventYear'] + ' Starting At: ' + result.rows.item(i)['EventHour'] + ':' + result.rows.item(i)['EventMinute'] + ' Organised By: ' + result.rows.item(i)['EventOrganiser'] + ' Description: ' + result.rows.item(i)['EventDescription']);
+	 }
+	 }
+     },errorHandler);
+ },errorHandler,nullHandler);
+
+ return;
+}
+// This function is invoked when an attempt is made to delete an event.
+// A prompt is launched asking the user for confirmation.
+    function displayprompt() {
+        navigator.notification.confirm(
+            'You are about to delete an entire event. \n Are you sure?', 
+             cnfrm,            
+            'Sure?',           
+            ['Yes','No']         
+        );
+    }
+//ButtonIndex 1 is Yes, Button index 2 is No. 
+// If yes is pressed. The data deletion code is run
+ function cnfrm(buttonIndex) {
+	
+	if (buttonIndex == 1) {
+
+ if (!window.openDatabase) {
+  alert('Unable to create database');
+  return;
+ }
+ //Data deletion code. Deletes all data in a row that matches the ID selected by the user.
+db.transaction(function(transaction) {
+ transaction.executeSql('Delete FROM Event where EventId='+ $('#txdel').val())});
+showEvents();
+
+	}
+	
+	if (buttonIndex == 2){ 
+        }
+	//Do nothing if No is pressed
+    }
+	//Code to add description to existing event	
+function AddDescription() {
+
+ if (!window.openDatabase) {
+   alert('Unable to create database');
+   return;
+ }
+
+ db.transaction(function(transaction) {
+//Updates an existing row's "EventDescription" field (originally set to null), based on the row.
+transaction.executeSql("UPDATE Event SET EventDescription ='" + $('#txEvDesc').val() + "' WHERE EventId = '" + $('#txId').val() + "' ;", [], nullHandler,errorHandler);
+ //Update the list automatically by running the data display function immediately after updating.
+ showEvents();
+
+ return false;
+})
+}
+
+function AddNewEvent() {
+
+ if (!window.openDatabase) {
+   alert('Unable to create database');
+   return;
+ }
+//Insert values into Events table. values are retrieved through ID's of input area's.
+ db.transaction(function(transaction) {
+   transaction.executeSql('INSERT INTO Event(EventName, EventLocation, EventDay, EventMonth, EventYear, EventHour, EventMinute, EventOrganiser) VALUES (?,?,?,?,?,?,?,?)',[$('#txEvName').val(), $('#txEvLocation').val(), $('#txdy').val(), $('#txmnth').val(), $('#txyr').val(), $('#txhr').val(), $('#txmin').val(), $('#txEvOrg').val()],nullHandler,errorHandler);});
+
+// Display the inserted event as soon as inserted.
+ showEvents();
+ SearchEvents();
+ return false;
+}
+
+// Help button prompt function. 
+    function displayprompt2() {
+        navigator.notification.confirm(
+            'Our Guides are at your service! \n What may we help you with?', 
+             cnfrm2,            
+            'Do not fear, your guide is here.',           
+            ['Creating an Event','Describing an Event','Deleting an Event']         
+        );
+    }
+
+ function cnfrm2(buttonIndex) {
+	
+	if (buttonIndex == 1) {
+	// If first button is pressed. show the alert below.
+alert('To Add an Event: \n 1. Type the name of the event in the text area labeled "Event Name". \n 2. Type the location of the event in the text field labeled "Location". \n 3. Select the event day, month and year using the 3 drop down lists under the "Location" text field. \n 4. Select the start time of the event using the 2 drop down lists under the first 3. \n 5. Press the "Add Event" button. \n \n Note: \n Two Events cannot have the same name. \n Remember to give your events different names.');
+	}
+	
+	if (buttonIndex == 2){ 
+	// If second button is pressed. show the alert below.
+alert('To Add an Event Description:\n 1. Use the drop down list to the left of the text field labeled "Event Description" to select the ID of the event you want to describe. \n 2. Type your description in the text area labeled "Event Description". \n 3. Press the "Add Description" button . \n \n Note: \n Do not use special characters when typing event description. \n Keep it Clean :)');
+	}
+	
+	if (buttonIndex == 3){
+	// If third button is pressed. show the alert below.
+		alert('To Delete an Event: \n 1. Use the drop down list next to the button labeled "Delete" to select the ID of the event you want to delete. \n (Every event has an ID) \n 2. Press the button labeled "Delete" to remove the selected event.');
+	}
+    }
+	// Search help button function
+	function shelp(){
+	alert(' A few pointers to help you search. \n \n \n You can search for events in many ways. These Include: \n 1. By ID: Simply type the ID of the event into the search box and press search. \n \n 2. By Name: You can type the name of an event into the searchbox and press the search button. \n Notes: \n The name typed must appear exacttly as it was saved. \n The search is not case sensitive. \n \n 3. By Day, Month or Year: \n Simply type in the day, month or year of the event you would like to search for and press "search". \n Note: \n When searching for year, use only the last 2 digits i.e. 2016 can be searched for as "16" but not as "2016". \n \n 4. By Organiser: \n Type the name of the organiser and press the "search" button. \n Note: \n Type the name of the organiser exactly as it was saved.');
+	}
+
+
+
+</script>
+</head>
+<body onload="onBodyLoad()" class"bdy">
+<h1> mad Discovery </h1>
+<div> <p> Add Event <input class="hlp1" type="button" value="Need Help?" onclick="displayprompt2()" > </p>  </div>
+<div>
+<input id="txEvName" type="text" placeholder="Event Name"> 
+ <br>
+</div><br><div>
+<input id="txEvLocation" type="text" placeholder="Location"> 
+</div><br>
+<div class="select2" > <br>
+<select id="txdy">
+                        <option>&nbsp;</option>
+                        <option>01</option>
+						<option>02</option>
+						<option>03</option>
+						<option>04</option>
+						<option>05</option>
+						<option>06</option>
+						<option>07</option>
+						<option>08</option>
+						<option>09</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+						<option>13</option>
+						<option>14</option>
+						<option>15</option>
+						<option>16</option>
+						<option>17</option>
+						<option>18</option>
+						<option>19</option>
+						<option>20</option>
+						<option>21</option>
+						<option>22</option>
+						<option>23</option>
+						<option>24</option>
+						<option>25</option>
+						<option>26</option>
+						<option>27</option>
+						<option>28</option>
+						<option>29</option>
+						<option>30</option>
+						<option>31</option>
+                      </select> Day
+					  <select id="txmnth">
+                        <option>&nbsp;</option>
+                        <option>01</option>
+						<option>02</option>
+						<option>03</option>
+						<option>04</option>
+						<option>05</option>
+						<option>06</option>
+						<option>07</option>
+						<option>08</option>
+						<option>09</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+                      </select> Month
+                      <select id="txyr">
+                        <option>&nbsp;</option>
+                        <option>16</option>
+						<option>17</option>
+						<option>18</option>
+                      </select> Year
+                    </div>
+<div> <br>
+<select id="txhr">
+                        <option>&nbsp;</option>
+						<option>00</option>
+                        <option>01</option>
+						<option>02</option>
+						<option>03</option>
+						<option>04</option>
+						<option>05</option>
+						<option>06</option>
+						<option>07</option>
+						<option>08</option>
+						<option>09</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+						<option>13</option>
+						<option>14</option>
+						<option>15</option>
+						<option>16</option>
+						<option>17</option>
+						<option>18</option>
+						<option>19</option>
+						<option>20</option>
+						<option>21</option>
+						<option>22</option>
+						<option>23</option>			
+                      </select> Hour
+					  <select id="txmin">
+                        <option>&nbsp;</option>
+						<option>00</option>
+                        <option>01</option>
+						<option>02</option>
+						<option>03</option>
+						<option>04</option>
+						<option>05</option>
+						<option>06</option>
+						<option>07</option>
+						<option>08</option>
+						<option>09</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+						<option>13</option>
+						<option>14</option>
+						<option>15</option>
+						<option>16</option>
+						<option>17</option>
+						<option>18</option>
+						<option>19</option>
+						<option>20</option>
+						<option>21</option>
+						<option>22</option>
+						<option>23</option>
+						<option>24</option>
+						<option>25</option>
+						<option>26</option>
+						<option>27</option>
+						<option>28</option>
+						<option>29</option>
+						<option>30</option>
+						<option>31</option>
+						<option>32</option>
+						<option>33</option>
+						<option>34</option>
+						<option>35</option>
+						<option>36</option>
+						<option>37</option>
+						<option>38</option>
+						<option>39</option>
+						<option>40</option>
+						<option>41</option>
+						<option>42</option>
+						<option>43</option>
+						<option>44</option>
+						<option>45</option>
+						<option>46</option>
+						<option>47</option>
+						<option>48</option>
+						<option>49</option>
+						<option>50</option>
+						<option>51</option>
+						<option>52</option>
+						<option>53</option>
+						<option>54</option>
+						<option>55</option>
+						<option>56</option>
+						<option>57</option>
+						<option>58</option>
+						<option>59</option>
+                      </select> Minute
+</div><div> <br>
+<input id="txEvOrg" type="text" placeholder="Event Organiser"> 
+</div><div> <br>
+<input type="button" value="Add Event" onClick="AddNewEvent()">
+ <br>
+</div>
+<div> <p> Add Event Description By ID </p> </div><br>
+<div>
+<select id="txId">
+                        <option>&nbsp;</option>		
+                        <option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>6</option>
+						<option>7</option>
+						<option>8</option>
+						<option>9</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+						<option>13</option>
+						<option>14</option>
+						<option>15</option>
+						<option>16</option>
+						<option>17</option>
+						<option>18</option>
+						<option>19</option>
+						<option>20</option>
+						<option>21</option>
+						<option>22</option>
+						<option>23</option>
+						<option>24</option>
+						<option>25</option>
+						<option>26</option>
+						<option>27</option>
+						<option>28</option>
+						<option>29</option>
+						<option>30</option>
+						<option>31</option>
+						<option>32</option>
+						<option>33</option>
+						<option>34</option>
+						<option>35</option>
+						<option>36</option>
+						<option>37</option>
+						<option>38</option>
+						<option>39</option>
+						<option>40</option>
+						<option>41</option>
+						<option>42</option>
+						<option>43</option>
+						<option>44</option>
+						<option>45</option>
+						<option>46</option>
+						<option>47</option>
+						<option>48</option>
+						<option>49</option>
+						<option>50</option>
+                      </select> ID #
+<input id="txEvDesc" type="text" placeholder="Event Description">
+</div><br><div>
+<input type="button" value="Add Description" onClick="AddDescription()"> <br>
+</div><br>
+<div> <p> Delete Event by ID </p> </div>
+<select id="txdel">
+                        <option>&nbsp;</option>		
+                        <option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>6</option>
+						<option>7</option>
+						<option>8</option>
+						<option>9</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+						<option>13</option>
+						<option>14</option>
+						<option>15</option>
+						<option>16</option>
+						<option>17</option>
+						<option>18</option>
+						<option>19</option>
+						<option>20</option>
+						<option>21</option>
+						<option>22</option>
+						<option>23</option>
+						<option>24</option>
+						<option>25</option>
+						<option>26</option>
+						<option>27</option>
+						<option>28</option>
+						<option>29</option>
+						<option>30</option>
+						<option>31</option>
+						<option>32</option>
+						<option>33</option>
+						<option>34</option>
+						<option>35</option>
+						<option>36</option>
+						<option>37</option>
+						<option>38</option>
+						<option>39</option>
+						<option>40</option>
+						<option>41</option>
+						<option>42</option>
+						<option>43</option>
+						<option>44</option>
+						<option>45</option>
+						<option>46</option>
+						<option>47</option>
+						<option>48</option>
+						<option>49</option>
+						<option>50</option>
+                      </select> ID #
+<input type="button" value="Delete" Onclick="displayprompt()">
+<br><br>
+<div> <p> Search For Event </p> </div>
+<div> 
+<input id="txSearch" type="text" placeholder="Search Terms"> 
+</div> <br><div> 
+<input type="button" value="Search" onClick="SearchEvents()"> <input  type="button" value="Search Guidelines" onclick="shelp()" > <br>
+</div><br><div>
+<span style="font-weight:bold;">All Events:</span>
+<span id="displayss"></span></div>
+<br>
+<div>
+<span style="font-weight:bold;">Search Results:</span>
+<span id="displayss2"></span></div>
+
+</body>
+</html> 
