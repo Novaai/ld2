@@ -38,6 +38,11 @@ function DBSuccess() {
 
 function nullHandler(){};
 
+//Declaring Global Variables
+
+
+ 
+
 
 function onBodyLoad(){
 
@@ -61,7 +66,7 @@ function onBodyLoad(){
 
 }
 
-
+// Borrowed from ‘Github’, Phonegap sqlite working example, Last visited on 8th April 2016 https://gist.github.com/edwardtoday/2204864
 //Listing database values in sentence form
 function showEvents() {
 
@@ -71,6 +76,7 @@ function showEvents() {
  }
 
 // Clearing the span used to display the data. If not cleared duplicate results will be displayed.
+// Borrowed from ‘Github’, Phonegap sqlite working example, Last visited on 8th April 2016 https://gist.github.com/edwardtoday/2204864
  $('#displayss').html('');
 
 
@@ -101,6 +107,7 @@ function SearchEvents() {
 $('#displayss2').html('');
 
 //decided time shouldnt be searched through. best left at day, month or year
+// Borrowed from'Stack Overflow', Last visited on 13th April 2016 http://stackoverflow.com/questions/17505747/how-to-get-value-from-table-in-sqlite-phonegap
 db.transaction(function(transaction) {
  transaction.executeSql('SELECT * FROM Event WHERE EventId =? OR EventName =? OR EventLocation =? OR EventDay =? OR EventMonth =? OR EventYear =? OR EventOrganiser =?', [$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val(),$('#txSearch').val()],
      function(transaction, result) {
@@ -108,6 +115,7 @@ db.transaction(function(transaction) {
 	 if(len>0)
 	 {
 	 for (var i = 0; i < len; i++){
+	 // Borrowed from'Stack Overflow', Last visited on 13th April 2016 http://stackoverflow.com/questions/17505747/how-to-get-value-from-table-in-sqlite-phonegap
 	 $('#displayss2').append('<br>' + 'Event #' + result.rows.item(i)['EventId'] + '.  ' + result.rows.item(i)['EventName'] + ' @: ' + result.rows.item(i)['EventLocation'] + ' ON ' + result.rows.item(i)['EventDay'] + '/' + result.rows.item(i)['EventMonth']+ '/' + result.rows.item(i)['EventYear'] + ' Starting At: ' + result.rows.item(i)['EventHour'] + ':' + result.rows.item(i)['EventMinute'] + ' Organised By: ' + result.rows.item(i)['EventOrganiser'] + ' Description: ' + result.rows.item(i)['EventDescription']);
 	 }
 	 }
@@ -165,20 +173,69 @@ transaction.executeSql("UPDATE Event SET EventDescription ='" + $('#txEvDesc').v
 })
 }
 
+
+ //function slntsrch(pname){
+ 
+//db.transaction(function(transaction) {
+//transaction.executeSql('SELECT * FROM Event;',[],
+//function(transaction, result){
+ //for (var i = 0; i < len; i++){
+//	  var row = result.rows.item(i);
+	  
+//	  if (pname == row.EventName) {
+//alert('An event with that name already exists');}
+//		     }},errorHandler);
+// },errorHandler,nullHandler);
+ 
+//return;
+//}
+
+
 function AddNewEvent() {
+
 
  if (!window.openDatabase) {
    alert('Unable to create database');
    return;
  }
+ 
+ var pname = $('#txEvName').val();
+ var plocation = $('#txEvLocation').val();
+ var pday = $('#txdy').val();
+ var pmonth = $('#txmnth').val();
+ var pyear = $('#txyr').val();
+ var phour = $('#txhr').val();
+ var pminute = $('#txmin').val();
+ var porganiser = $('#txEvOrg').val();
+ 
+//slntsrch(pname);
+ 
+if (pname == "") {
+alert('Event Name is empty. \n Please fill it in.');
+}
+ else if (pday == "") {
+alert('Event Day is empty. \n Please fill it in.');
+}
+else if (pmonth == "") {
+alert('Event Month is empty. \n Please fill it in.');
+}
+else if (pyear == "") {
+alert('Event Year is empty. \n Please fill it in.');
+}
+else if (porganiser == "") {
+alert('Event Organiser is empty. \n Please fill it in.');
+}
+ 
+ else if ((pname != "") && (pday != "") && (pmonth != "") && (pyear != "") && (porganiser != "")){
 //Insert values into Events table. values are retrieved through ID's of input area's.
  db.transaction(function(transaction) {
-   transaction.executeSql('INSERT INTO Event(EventName, EventLocation, EventDay, EventMonth, EventYear, EventHour, EventMinute, EventOrganiser) VALUES (?,?,?,?,?,?,?,?)',[$('#txEvName').val(), $('#txEvLocation').val(), $('#txdy').val(), $('#txmnth').val(), $('#txyr').val(), $('#txhr').val(), $('#txmin').val(), $('#txEvOrg').val()],nullHandler,errorHandler);});
+   transaction.executeSql('INSERT INTO Event(EventName, EventLocation, EventDay, EventMonth, EventYear, EventHour, EventMinute, EventOrganiser) VALUES (?,?,?,?,?,?,?,?)',[pname, plocation, pday, pmonth, pyear, phour, pminute, porganiser],nullHandler,errorHandler);});
 
 // Display the inserted event as soon as inserted.
  showEvents();
- SearchEvents();
  return false;
+ }
+ 
 }
 
 // Help button prompt function. 
