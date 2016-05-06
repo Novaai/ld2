@@ -267,7 +267,7 @@ alert('To Add an Event Description:\n 1. Use the drop down list to the left of t
     }
 	// Search help button function
 	function shelp(){
-	alert(' A few pointers to help you search. \n \n \n You can search for events in many ways. These Include: \n 1. By ID: Simply type the ID of the event into the search box and press search. \n \n 2. By Name: You can type the name of an event into the searchbox and press the search button. \n Notes: \n The name typed must appear exacttly as it was saved. \n The search is not case sensitive. \n \n 3. By Day, Month or Year: \n Simply type in the day, month or year of the event you would like to search for and press "search". \n Note: \n When searching for year, use only the last 2 digits i.e. 2016 can be searched for as "16" but not as "2016". \n \n 4. By Organiser: \n Type the name of the organiser and press the "search" button. \n Note: \n Type the name of the organiser exactly as it was saved.');
+	alert(' A few pointers to help you search. \n \n \n You can search for events in many ways. These Include: \n 1. By ID: Simply type the ID of the event into the search box and press search. \n \n 2. By Name: You can type the name of an event into the searchbox and press the search button. \n Note: \n The name typed must appear exactly as it was saved. \n The search is not case sensitive. \n \n 3. By Day, Month or Year: \n Simply type in the day, month or year of the event you would like to search for and press "search". \n Note: \n When searching for year, use only the last 2 digits i.e. 2016 can be searched for as "16" but not as "2016". \n \n 4. By Organiser: \n Type the name of the organiser and press the "search" button. \n Note: \n Type the name of the organiser exactly as it was saved.');
 	}
 
 
@@ -277,8 +277,9 @@ alert('To Add an Event Description:\n 1. Use the drop down list to the left of t
 <body onload="onBodyLoad()" class"bdy">
 <h1> mad Discovery </h1>
 <div> <p> Add Event <input class="hlp1" type="button" value="Need Help?" onclick="displayprompt2()" > </p>  </div>
+<p> Required fields are marked with a red star (<font color="red"> * </font>)  </p>      
 <div>
-<input id="txEvName" type="text" placeholder="Event Name"> 
+<input id="txEvName" type="text" placeholder="Event Name"> <font color="red"> * </font>
  <br>
 </div><br><div>
 <input id="txEvLocation" type="text" placeholder="Location"> 
@@ -317,7 +318,7 @@ alert('To Add an Event Description:\n 1. Use the drop down list to the left of t
 						<option>29</option>
 						<option>30</option>
 						<option>31</option>
-                      </select> Day
+                      </select> Day <font color="red"> * </font>
 					  <select id="txmnth">
                         <option>&nbsp;</option>
                         <option>01</option>
@@ -332,13 +333,13 @@ alert('To Add an Event Description:\n 1. Use the drop down list to the left of t
 						<option>10</option>
 						<option>11</option>
 						<option>12</option>
-                      </select> Month
+                      </select> Month <font color="red"> * </font>
                       <select id="txyr">
                         <option>&nbsp;</option>
                         <option>16</option>
 						<option>17</option>
 						<option>18</option>
-                      </select> Year
+                      </select> Year <font color="red"> * </font>
                     </div>
 <div> <br>
 <select id="txhr">
@@ -432,7 +433,7 @@ alert('To Add an Event Description:\n 1. Use the drop down list to the left of t
 						<option>59</option>
                       </select> Minute
 </div><div> <br>
-<input id="txEvOrg" type="text" placeholder="Event Organiser"> 
+<input id="txEvOrg" type="text" placeholder="Event Organiser"> <font color="red"> * </font>
 </div><div> <br>
 <input type="button" value="Add Event" onClick="AddNewEvent()">
  <br>
